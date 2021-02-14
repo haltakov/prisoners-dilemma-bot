@@ -1,11 +1,12 @@
 """Tests for the Prisoner's Dilemma bot"""
 
-from bot.prisoners_dilemma_bot import PrisonersDilemmaBot
+from prisonersdilemma.bot import PrisonersDilemmaBot
+import prisonersdilemma.strategy as strategy
 
 
 def test_new_game():
     """Test starting a new game"""
-    bot = PrisonersDilemmaBot()
+    bot = PrisonersDilemmaBot(strategy.play_tit_for_tat)
 
     expect_game_state(bot.play("test_user_1", True), [], (0, 0))
     expect_game_state(bot.play("test_user_2", True), [], (0, 0))
@@ -24,7 +25,7 @@ def expect_game_state(game_state, expected_moves, expected_points):
 
 def test_short_game_draw():
     """Test a short game ending with a draw"""
-    bot = PrisonersDilemmaBot(strategy="always_cooperate", moves_to_play=1)
+    bot = PrisonersDilemmaBot(strategy.play_always_cooperate, moves_to_play=1)
 
     bot.play("test_user", "@DilemmaBot let's play")
     expect_game_state(bot.play("test_user", True), [(True, True)], (3, 3))
@@ -32,7 +33,7 @@ def test_short_game_draw():
 
 def test_short_game_win():
     """Test a short game ending with a win for the opponent"""
-    bot = PrisonersDilemmaBot(strategy="always_cooperate", moves_to_play=1)
+    bot = PrisonersDilemmaBot(strategy.play_always_cooperate, moves_to_play=1)
 
     bot.play("test_user", "@DilemmaBot let's play")
     expect_game_state(bot.play("test_user", False), [(True, False)], (0, 5))
@@ -40,7 +41,7 @@ def test_short_game_win():
 
 def test_short_game_lose():
     """Test a short game ending with a defeat for the opponent"""
-    bot = PrisonersDilemmaBot(strategy="always_defect", moves_to_play=1)
+    bot = PrisonersDilemmaBot(strategy.play_always_defect, moves_to_play=1)
 
     bot.play("test_user", "@DilemmaBot let's play")
     expect_game_state(bot.play("test_user", True), [(False, True)], (5, 0))
@@ -48,7 +49,7 @@ def test_short_game_lose():
 
 def test_long_game():
     """Test a long game featuring all possible move combinations"""
-    bot = PrisonersDilemmaBot(moves_to_play=4)
+    bot = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=4)
 
     bot.play("test_user", "@DilemmaBot let's play")
     expect_game_state(bot.play("test_user", True), [(True, True)], (3, 3))
@@ -69,7 +70,7 @@ def test_long_game():
 
 def test_parallel_games():
     """Test 2 games with different opponents being played in parallel"""
-    bot = PrisonersDilemmaBot(moves_to_play=2)
+    bot = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=2)
 
     bot.play("test_user_1", "@DilemmaBot let's play")
     expect_game_state(bot.play("test_user_1", True), [(True, True)], (3, 3))
@@ -88,7 +89,7 @@ def test_parallel_games():
 
 def test_game_timeout():
     """Test game timeout"""
-    bot = PrisonersDilemmaBot(moves_to_play=2)
+    bot = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=2)
 
     bot.play("test_user_1", "@DilemmaBot let's play")
     expect_game_state(bot.play("test_user_1", True), [(True, True)], (3, 3))
