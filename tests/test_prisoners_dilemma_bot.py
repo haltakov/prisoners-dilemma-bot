@@ -1,10 +1,10 @@
-import time
-import pytest
-from unittest.mock import patch
+"""Tests for the Prisoner's Dilemma bot"""
+
 from bot.prisoners_dilemma_bot import PrisonersDilemmaBot
 
 
 def test_new_game():
+    """Test starting a new game"""
     bot = PrisonersDilemmaBot()
 
     expect_game_state(bot.play("test_user_1", True), [], (0, 0))
@@ -12,11 +12,18 @@ def test_new_game():
 
 
 def expect_game_state(game_state, expected_moves, expected_points):
+    """Helper function to compare the given game state to an expected game state
+
+    :param game_state: actual game state
+    :param expected_moves: expected moves history
+    :param expected_points: expected points
+    """
     assert game_state["moves"] == expected_moves
     assert game_state["points"] == expected_points
 
 
 def test_short_game_draw():
+    """Test a short game ending with a draw"""
     bot = PrisonersDilemmaBot(strategy="always_cooperate", moves_to_play=1)
 
     bot.play("test_user", "@DilemmaBot let's play")
@@ -24,6 +31,7 @@ def test_short_game_draw():
 
 
 def test_short_game_win():
+    """Test a short game ending with a win for the opponent"""
     bot = PrisonersDilemmaBot(strategy="always_cooperate", moves_to_play=1)
 
     bot.play("test_user", "@DilemmaBot let's play")
@@ -31,6 +39,7 @@ def test_short_game_win():
 
 
 def test_short_game_lose():
+    """Test a short game ending with a defeat for the opponent"""
     bot = PrisonersDilemmaBot(strategy="always_defect", moves_to_play=1)
 
     bot.play("test_user", "@DilemmaBot let's play")
@@ -38,6 +47,7 @@ def test_short_game_lose():
 
 
 def test_long_game():
+    """Test a long game featuring all possible move combinations"""
     bot = PrisonersDilemmaBot(moves_to_play=4)
 
     bot.play("test_user", "@DilemmaBot let's play")
@@ -58,6 +68,7 @@ def test_long_game():
 
 
 def test_parallel_games():
+    """Test 2 games with different opponents being played in parallel"""
     bot = PrisonersDilemmaBot(moves_to_play=2)
 
     bot.play("test_user_1", "@DilemmaBot let's play")
@@ -76,6 +87,7 @@ def test_parallel_games():
 
 
 def test_game_timeout():
+    """Test game timeout"""
     bot = PrisonersDilemmaBot(moves_to_play=2)
 
     bot.play("test_user_1", "@DilemmaBot let's play")

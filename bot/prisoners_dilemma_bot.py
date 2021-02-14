@@ -1,3 +1,5 @@
+"""Module implementing a Prisoner's Dilemma bot"""
+
 import time
 from bot.strategies import STRATEGIES
 
@@ -8,7 +10,7 @@ class PrisonersDilemmaBot:
     def __init__(
         self,
         strategy="tit_for_tat",
-        game_matrix=[5, 3, 1, 0],
+        game_matrix=(5, 3, 1, 0),
         moves_to_play=10,
         timeout=2 * 86400,
     ):
@@ -17,7 +19,8 @@ class PrisonersDilemmaBot:
         :param strategy: a name of the strategy the bot should play, defaults to "tit_for_tat"
         :param game_matrix: matrix with game payoffs, defaults to [5, 3, 1, 0]
         :param moves_to_play: number of moves to play with each opponent, defaults to 10
-        :param timeout: timeout after which the current game for the opponen will be discarded, defaults to 2 days
+        :param timeout: timeout after which the current game for the opponen will be discarded,
+        defaults to 2 days
         """
         self.strategy = STRATEGIES.get(strategy, STRATEGIES[list(STRATEGIES.keys())[0]])
         self.game_matrix = game_matrix
@@ -31,8 +34,8 @@ class PrisonersDilemmaBot:
 
         :param user: name of the opponent
         :param opponent_move: move of the opponent: True for COOPERATE and False for DEFECT
-        :return: The current game state for this opponent - a dict containing the start and last played time,
-                 the moves history and the current scores
+        :return: The current game state for this opponent - a dict containing the start and last
+        played time, the moves history and the current scores
         """
         # Get the active game
         game = self.active_games.get(user, None)
