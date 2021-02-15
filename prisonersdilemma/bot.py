@@ -28,6 +28,13 @@ class PrisonersDilemmaBot:
 
         self.active_games = {}
 
+    def is_user_playing(self, user):
+        """Check if a user is currently playing a game
+
+        :param user: user
+        """
+        return user in self.active_games
+
     def play(self, user, opponent_move):
         """Play a single move of the Prisoner's Dilemma game with one opponent
 
