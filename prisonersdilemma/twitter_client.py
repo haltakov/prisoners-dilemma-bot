@@ -130,7 +130,8 @@ class PrisonersDilemmaTwitterClient:
 
     def load_active_games(self):
         """Load the active games from a JSON file"""
-        self.bot.load_active_games(self.active_games_file)
+        if self.active_games_file.exists():
+            self.bot.load_active_games(self.active_games_file)
 
     def save_active_games(self):
         """Save the active games to a JSON file"""
