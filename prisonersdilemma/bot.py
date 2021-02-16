@@ -1,6 +1,7 @@
 """Module implementing a Prisoner's Dilemma bot"""
 
 import time
+import json
 
 
 class PrisonersDilemmaBot:
@@ -86,3 +87,19 @@ class PrisonersDilemmaBot:
             return [self.game_matrix[3], self.game_matrix[0]]
         else:
             return [self.game_matrix[2], self.game_matrix[2]]
+
+    def load_active_games(self, filename):
+        """Load the active games from a JSON file
+
+        :param filename: path to the file where the games are saved
+        """
+        with open(filename, "r") as json_file:
+            self.active_games = json.load(json_file)
+
+    def save_active_games(self, filename):
+        """Save the active games to a JSON file
+
+        :param filename: path to the file where the games will be saved
+        """
+        with open(filename, "w") as json_file:
+            json.dump(self.active_games, json_file)

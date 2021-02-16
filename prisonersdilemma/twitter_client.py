@@ -82,13 +82,14 @@ def parse_move(text):
 class PrisonersDilemmaTwitterClient:
     """Twitter client for the Prisoner's Dilemma bot"""
 
-    def __init__(self, interval, state_file):
+    def __init__(self, interval, state_file, active_games_file):
         """Initialize the Twitter Client"""
         logging.info("Starting the Prisoner's Dilemma Twitter Bot")
 
         # Init the object attributes
         self.interval = interval
         self.state_file = Path(state_file)
+        self.active_games_file = Path(active_games_file)
 
         # Initilize the API
         logging.info("Initializing Twitter API")
@@ -100,7 +101,7 @@ class PrisonersDilemmaTwitterClient:
 
         # Initialize the bot
         self.bot = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=3)
-        # TODO Load the active games form file
+        self.load_active_games()
 
     def init_twitter_api(self):
         """Authenticat and initilize the Twitter API
@@ -126,6 +127,14 @@ class PrisonersDilemmaTwitterClient:
         """Save the bot state to a file"""
         with open(self.state_file, "w") as state_file_json:
             return json.dump(self.state, state_file_json)
+
+    def load_active_games(self):
+        """Load the active games from a JSON file"""
+        self.bot.load_active_games(self.active_games_file)
+
+    def save_active_games(self):
+        """Save the active games to a JSON file"""
+        self.bot.save_active_games(self.active_games_file)
 
     def reply_to_tweet(self, text, tweet_id):
         """Reply to a tweet
@@ -206,6 +215,7 @@ class PrisonersDilemmaTwitterClient:
                 )
 
             self.save_state()
+            self.save_active_games()
 
             time.sleep(args.interval)
 
@@ -265,5 +275,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     # Create and run the Twitter client
-    client = PrisonersDilemmaTwitterClient(args.interval, args.state_file)
+    client = PrisonersDilemmaTwitterClient(
+        args.interval, args.state_file, args.games_file
+    )
     client.run()

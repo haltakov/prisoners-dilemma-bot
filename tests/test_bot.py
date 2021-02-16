@@ -1,5 +1,7 @@
 """Tests for the Prisoner's Dilemma bot"""
 
+from pathlib import Path
+from testfixtures import TempDirectory
 from prisonersdilemma.bot import PrisonersDilemmaBot
 import prisonersdilemma.strategy as strategy
 
@@ -98,3 +100,19 @@ def test_game_timeout():
     bot.active_games["test_user_1"]["last_time"] -= 200000
 
     expect_game_state(bot.play("test_user_1", True), [], [0, 0])
+
+
+def test_save_and_load():
+    """Test saving and loading the active games"""
+
+    bot_1 = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=2)
+    bot_2 = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=2)
+
+    bot_1.play("test_user_1", "@DilemmaBot let's play")
+    bot_1.play("test_user_1", "C")
+
+    with TempDirectory() as tempdir:
+        bot_1.save_active_games(Path(tempdir.path, "games.json"))
+        bot_2.load_active_games(Path(tempdir.path, "games.json"))
+
+    assert bot_1.active_games == bot_2.active_games
