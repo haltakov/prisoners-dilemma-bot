@@ -49,20 +49,20 @@ class PrisonersDilemmaBot:
         # Check if there is no active game for this user or the user didn't play for a long time
         if not game or time.time() - game["last_time"] > self.timeout:
             self.active_games[user] = dict(
-                start_time=time.time(), last_time=time.time(), moves=[], points=(0, 0)
+                start_time=time.time(), last_time=time.time(), moves=[], points=[0, 0]
             )
             return self.active_games[user]
 
         # Play both moves
         own_move = self.strategy(game["moves"])
-        game["moves"].append((own_move, opponent_move))
+        game["moves"].append([own_move, opponent_move])
 
         # Calculate the outcome and update the total points
         payoffs = self.get_payoffs(own_move, opponent_move)
-        game["points"] = (
+        game["points"] = [
             game["points"][0] + payoffs[0],
             game["points"][1] + payoffs[1],
-        )
+        ]
         game["last_time"] = time.time()
 
         # Check if the game is finished and delete
@@ -79,10 +79,10 @@ class PrisonersDilemmaBot:
         :return: A pair containing the payoffs for both users
         """
         if own_move and opponent_move:
-            return (self.game_matrix[1], self.game_matrix[1])
+            return [self.game_matrix[1], self.game_matrix[1]]
         elif not own_move and opponent_move:
-            return (self.game_matrix[0], self.game_matrix[3])
+            return [self.game_matrix[0], self.game_matrix[3]]
         elif own_move and not opponent_move:
-            return (self.game_matrix[3], self.game_matrix[0])
+            return [self.game_matrix[3], self.game_matrix[0]]
         else:
-            return (self.game_matrix[2], self.game_matrix[2])
+            return [self.game_matrix[2], self.game_matrix[2]]
