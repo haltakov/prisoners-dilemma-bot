@@ -57,20 +57,22 @@ def parse_move(text):
     :raises ValueError: raises an exception if no valid move can be found
     :return: True for COOPERATE and False for DEFECT
     """
+    text = text.replace("@DilemmaBot", "").upper().strip()
+
     # Check for cooperate
-    if "COOPERATE" in text.upper():
+    if "COOPERATE" in text:
         return True
 
     # Check for C
-    if text.upper().strip() == "C":
+    if text == "C":
         return True
 
     # Check for defect
-    if "DEFECT" in text.upper():
+    if "DEFECT" in text:
         return False
 
     # Check for D
-    if text.upper().strip() == "D":
+    if text == "D":
         return False
 
     # Raise exception if no valid move was found
@@ -152,6 +154,7 @@ class PrisonersDilemmaTwitterClient:
 
         # Parse the move
         try:
+
             move = parse_move(tweet.text)
         except ValueError:
             self.reply_to_tweet(MESSAGES["invalid_move"], tweet.id)

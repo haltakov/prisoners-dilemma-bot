@@ -12,6 +12,7 @@ def test_parse_move():
     assert twitter_client.parse_move("COOPERATE")
     assert twitter_client.parse_move("cooperate")
     assert twitter_client.parse_move("C")
+    assert twitter_client.parse_move("@DilemmaBot C")
     assert twitter_client.parse_move("c")
     assert twitter_client.parse_move(" c  ")
 
@@ -20,6 +21,7 @@ def test_parse_move():
     assert not twitter_client.parse_move("DEFECT")
     assert not twitter_client.parse_move("defect")
     assert not twitter_client.parse_move("D")
+    assert not twitter_client.parse_move("@DilemmaBot D")
     assert not twitter_client.parse_move("d")
     assert not twitter_client.parse_move(" d  ")
 
