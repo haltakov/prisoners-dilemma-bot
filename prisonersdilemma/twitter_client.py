@@ -177,7 +177,7 @@ class PrisonersDilemmaTwitterClient:
         # Check if the game is finished and prepare the message
         end_game_message = ""
         if moves_played == self.bot.moves_to_play:
-            end_game_message = get_end_game_message(game_state["points"])
+            end_game_message = get_end_game_message(game_state["total_points"])
 
         # Reply to the tweet depending on the game state
         if moves_played == 0:
@@ -190,10 +190,10 @@ class PrisonersDilemmaTwitterClient:
                     self.bot.moves_to_play,
                     move_to_string(last_moves[1]),
                     move_to_string(last_moves[0]),
-                    game_state["points"][1],
-                    game_state["points"][0],
-                    game_state["points"][1],
-                    game_state["points"][0],
+                    game_state["last_points"][1],
+                    game_state["last_points"][0],
+                    game_state["total_points"][1],
+                    game_state["total_points"][0],
                     end_game_message,
                 ),
                 tweet.id,

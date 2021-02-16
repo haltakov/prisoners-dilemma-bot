@@ -50,7 +50,11 @@ class PrisonersDilemmaBot:
         # Check if there is no active game for this user or the user didn't play for a long time
         if not game or time.time() - game["last_time"] > self.timeout:
             self.active_games[user] = dict(
-                start_time=time.time(), last_time=time.time(), moves=[], points=[0, 0]
+                start_time=time.time(),
+                last_time=time.time(),
+                moves=[],
+                total_points=[0, 0],
+                last_points=[0, 0],
             )
             return self.active_games[user]
 
@@ -60,9 +64,10 @@ class PrisonersDilemmaBot:
 
         # Calculate the outcome and update the total points
         payoffs = self.get_payoffs(own_move, opponent_move)
-        game["points"] = [
-            game["points"][0] + payoffs[0],
-            game["points"][1] + payoffs[1],
+        game["last_points"] = payoffs
+        game["total_points"] = [
+            game["total_points"][0] + payoffs[0],
+            game["total_points"][1] + payoffs[1],
         ]
         game["last_time"] = time.time()
 
