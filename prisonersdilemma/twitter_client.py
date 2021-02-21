@@ -134,7 +134,7 @@ def parse_move(text):
 class PrisonersDilemmaTwitterClient:
     """Twitter client for the Prisoner's Dilemma bot"""
 
-    def __init__(self, interval, state_file, active_games_file):
+    def __init__(self, interval, state_file, active_games_file, archive_file=None):
         """Initialize the Twitter Client"""
         logging.info("Starting the Prisoner's Dilemma Twitter Bot")
 
@@ -142,6 +142,7 @@ class PrisonersDilemmaTwitterClient:
         self.interval = interval
         self.state_file = Path(state_file)
         self.active_games_file = Path(active_games_file)
+        self.archive_file = Path(archive_file)
 
         # Initilize the API
         logging.info("Initializing Twitter API")
@@ -189,6 +190,16 @@ class PrisonersDilemmaTwitterClient:
         """Save the active games to a JSON file"""
         self.bot.save_active_games(self.active_games_file)
 
+    def save_game_to_archive(self, user, game):
+        """Save a finished game to the archive
+
+        :param game: Game to save
+        """
+        if self.archive_file:
+            game["user"] = user
+            with open(self.archive_file, "a") as archive:
+                json.dump(game, archive)
+
     def reply_to_tweet(self, text, tweet_id):
         """Reply to a tweet
 
@@ -231,11 +242,12 @@ class PrisonersDilemmaTwitterClient:
         if moves_played == self.bot.moves_to_play:
             end_game_message = get_end_game_message(
                 game_state["total_points"],
-                game_state["moves_count"],
                 self.bot.moves_to_play,
                 self.bot.game_matrix[1],
                 self.bot.game_matrix[2],
             )
+
+            self.save_game_to_archive(user, game_state)
         else:
             end_game_message = MESSAGES["next_move"]
 
@@ -336,6 +348,6 @@ if __name__ == "__main__":
 
     # Create and run the Twitter client
     client = PrisonersDilemmaTwitterClient(
-        args.interval, args.state_file, args.games_file
+        args.interval, args.state_file, args.games_file, args.archive_file
     )
     client.run()
