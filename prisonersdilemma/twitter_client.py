@@ -153,7 +153,7 @@ class PrisonersDilemmaTwitterClient:
         self.load_state()
 
         # Initialize the bot
-        self.bot = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=3)
+        self.bot = PrisonersDilemmaBot(strategy.play_tit_for_tat, moves_to_play=10)
         self.load_active_games()
 
     def init_twitter_api(self):
