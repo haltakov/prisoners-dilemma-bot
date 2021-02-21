@@ -221,15 +221,16 @@ class PrisonersDilemmaTwitterClient:
         user = tweet.user.screen_name
         # Check if the user starts a new game
         if not self.bot.is_user_playing(user):
+            logging.info("Starting a new game with %s", user)
             self.bot.play(user, True)
             self.reply_to_tweet(MESSAGES["rules"], tweet.id)
             return
 
         # Parse the move
         try:
-
             move = parse_move(tweet.text)
         except ValueError:
+            logging.info("Cannot parser the reply from %s", user)
             self.reply_to_tweet(MESSAGES["invalid_move"], tweet.id)
             return
 
@@ -237,6 +238,8 @@ class PrisonersDilemmaTwitterClient:
         game_state = self.bot.play(user, move)
         moves_played = len(game_state["moves"])
         last_moves = game_state["moves"][-1]
+
+        logging.info("Played round %d with %s", moves_played, user)
 
         # Check if the game is finished and prepare the message
         if moves_played == self.bot.moves_to_play:
@@ -252,33 +255,34 @@ class PrisonersDilemmaTwitterClient:
             end_game_message = MESSAGES["next_move"]
 
         # Reply to the tweet depending on the game state
-        if moves_played == 0:
-            self.reply_to_tweet(MESSAGES["rules"], tweet.id)
-        else:
-            self.reply_to_tweet(
-                MESSAGES["game_update"]
-                % (
-                    moves_played,
-                    self.bot.moves_to_play,
-                    move_to_string(last_moves[1]),
-                    move_to_string(last_moves[0]),
-                    game_state["last_points"][1],
-                    game_state["last_points"][0],
-                    game_state["total_points"][1],
-                    game_state["total_points"][0],
-                    end_game_message,
-                ),
-                tweet.id,
-            )
+        self.reply_to_tweet(
+            MESSAGES["game_update"]
+            % (
+                moves_played,
+                self.bot.moves_to_play,
+                move_to_string(last_moves[1]),
+                move_to_string(last_moves[0]),
+                game_state["last_points"][1],
+                game_state["last_points"][0],
+                game_state["total_points"][1],
+                game_state["total_points"][0],
+                end_game_message,
+            ),
+            tweet.id,
+        )
 
     def run(self):
         """Periodically search for new tweets and reply"""
+
+        logging.info("Searching for new tweets")
+
         while True:
-            logging.info("Searching for new tweets")
             tweets = self.twitter_api.search(
                 "@DilemmaBot", since_id=self.state["last_status_id"]
             )
-            logging.info("Found %d new tweets", len(tweets))
+
+            if len(tweets) > 0:
+                logging.info("Found %d new tweets", len(tweets))
 
             for tweet in tweets:
                 self.process_tweet(tweet)
@@ -289,7 +293,7 @@ class PrisonersDilemmaTwitterClient:
             self.save_state()
             self.save_active_games()
 
-            time.sleep(args.interval)
+            time.sleep(self.interval)
 
 
 def parse_args():
@@ -348,6 +352,6 @@ if __name__ == "__main__":
 
     # Create and run the Twitter client
     client = PrisonersDilemmaTwitterClient(
-        args.interval, args.state_file, args.games_file, args.archive_file
+        int(args.interval), args.state_file, args.games_file, args.archive_file
     )
     client.run()
