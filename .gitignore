@@ -130,3 +130,6 @@ dmypy.json
 
 playground
 .vscode
+twitter_bot_state.json
+active_games.json
+archive.json

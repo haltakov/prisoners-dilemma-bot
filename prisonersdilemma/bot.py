@@ -1,6 +1,7 @@
 """Module implementing a Prisoner's Dilemma bot"""
 
 import time
+import json
 
 
 class PrisonersDilemmaBot:
@@ -28,6 +29,13 @@ class PrisonersDilemmaBot:
 
         self.active_games = {}
 
+    def is_user_playing(self, user):
+        """Check if a user is currently playing a game
+
+        :param user: user
+        """
+        return user in self.active_games
+
     def play(self, user, opponent_move):
         """Play a single move of the Prisoner's Dilemma game with one opponent
 
@@ -42,20 +50,25 @@ class PrisonersDilemmaBot:
         # Check if there is no active game for this user or the user didn't play for a long time
         if not game or time.time() - game["last_time"] > self.timeout:
             self.active_games[user] = dict(
-                start_time=time.time(), last_time=time.time(), moves=[], points=(0, 0)
+                start_time=time.time(),
+                last_time=time.time(),
+                moves=[],
+                total_points=[0, 0],
+                last_points=[0, 0],
             )
             return self.active_games[user]
 
         # Play both moves
         own_move = self.strategy(game["moves"])
-        game["moves"].append((own_move, opponent_move))
+        game["moves"].append([own_move, opponent_move])
 
         # Calculate the outcome and update the total points
         payoffs = self.get_payoffs(own_move, opponent_move)
-        game["points"] = (
-            game["points"][0] + payoffs[0],
-            game["points"][1] + payoffs[1],
-        )
+        game["last_points"] = payoffs
+        game["total_points"] = [
+            game["total_points"][0] + payoffs[0],
+            game["total_points"][1] + payoffs[1],
+        ]
         game["last_time"] = time.time()
 
         # Check if the game is finished and delete
@@ -72,10 +85,26 @@ class PrisonersDilemmaBot:
         :return: A pair containing the payoffs for both users
         """
         if own_move and opponent_move:
-            return (self.game_matrix[1], self.game_matrix[1])
+            return [self.game_matrix[1], self.game_matrix[1]]
         elif not own_move and opponent_move:
-            return (self.game_matrix[0], self.game_matrix[3])
+            return [self.game_matrix[0], self.game_matrix[3]]
         elif own_move and not opponent_move:
-            return (self.game_matrix[3], self.game_matrix[0])
+            return [self.game_matrix[3], self.game_matrix[0]]
         else:
-            return (self.game_matrix[2], self.game_matrix[2])
+            return [self.game_matrix[2], self.game_matrix[2]]
+
+    def load_active_games(self, filename):
+        """Load the active games from a JSON file
+
+        :param filename: path to the file where the games are saved
+        """
+        with open(filename, "r") as json_file:
+            self.active_games = json.load(json_file)
+
+    def save_active_games(self, filename):
+        """Save the active games to a JSON file
+
+        :param filename: path to the file where the games will be saved
+        """
+        with open(filename, "w") as json_file:
+            json.dump(self.active_games, json_file)
