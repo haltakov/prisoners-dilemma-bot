@@ -96,12 +96,20 @@ def parse_move(text):
     if text == "C":
         return True
 
+    # Check for cooperate emoji
+    if "✅" in text:
+        return True
+
     # Check for defect
     if "DEFECT" in text:
         return False
 
     # Check for D
     if text == "D":
+        return False
+
+    # Check for defect emoji
+    if "❌" in text:
         return False
 
     # Raise exception if no valid move was found

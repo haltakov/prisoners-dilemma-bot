@@ -15,6 +15,9 @@ def test_parse_move():
     assert twitter_client.parse_move("@DilemmaBot C")
     assert twitter_client.parse_move("c")
     assert twitter_client.parse_move(" c  ")
+    assert twitter_client.parse_move("✅")
+    assert twitter_client.parse_move(" ✅  ")
+    assert twitter_client.parse_move("My move is ✅!")
 
     assert not twitter_client.parse_move("I defect now")
     assert not twitter_client.parse_move("I dEfEcT now")
@@ -24,6 +27,9 @@ def test_parse_move():
     assert not twitter_client.parse_move("@DilemmaBot D")
     assert not twitter_client.parse_move("d")
     assert not twitter_client.parse_move(" d  ")
+    assert not twitter_client.parse_move("❌")
+    assert not twitter_client.parse_move(" ❌  ")
+    assert not twitter_client.parse_move("My move is ❌!")
 
     with pytest.raises(ValueError):
         twitter_client.parse_move("No correct move")
