@@ -20,14 +20,43 @@ logging.basicConfig(
     handlers=[logging.FileHandler("twitter_bot.log"), logging.StreamHandler()],
 )
 
-
 MESSAGES = dict(
-    rules="Hi, I'm the Prisoner's Dilemma Bot. We are going to play a game. Please reply with COOPERATE or DEFECT.",
-    invalid_move="Sorry, I could't understand which move you want to play. Please reply with either COOPERATE (or just C) or DEFECT (or just D)",
-    game_update="Move %d out of %d\n\nYour move: %s\nMy move: %s\n\nYou get %d points and I get %d points\n\nTotal points count:\nYou: %d\nMe: %d\n\n%s",
-    result_win="CONGRATILATIONS - You won!",
-    result_lose="LOSER - You lost the game!",
-    result_draw="The game is draw",
+    rules="""Let's play a game of Prisoner's Dilemma!
+
+Reply with the move you want to play
+
+▪️ COOPERATE, C or ✅
+▪️ DEFECT, D or ❌
+
+We'll be playing 10 rounds and I will assign the points like this:
+
+✅ ✅ - 3 points each
+❌ ❌ - 1 points each
+✅ ❌ - 0 and 5 points respectively
+
+Let's go!""",
+    invalid_move="""Sorry I couldn't understand the move you want to play 😔
+
+Please reply with one of the following:
+
+▪️ COOPERATE, C or ✅
+▪️ DEFECT, D or ❌""",
+    game_update="""Game %d/%d
+
+Your move: %s
+My move: %s
+
+You get %d points and I get %d points!
+
+Current score:
+▪️ You: %d points
+▪️ Me: %d points
+
+%s""",
+    result_win="Congratulations! You won! 🥳",
+    result_lose="Ha, you lost! 🤖",
+    result_draw="Oh, I guess nobody wins this time... 🤷‍♂️",
+    next_move="What is your next move?",
 )
 
 
@@ -47,7 +76,7 @@ def get_end_game_message(points):
 
 def move_to_string(move):
     """Convert a Prisoner's Dilemma move to string"""
-    return "C" if move else "D"
+    return "✅" if move else "❌"
 
 
 def parse_move(text):
@@ -176,9 +205,10 @@ class PrisonersDilemmaTwitterClient:
         last_moves = game_state["moves"][-1]
 
         # Check if the game is finished and prepare the message
-        end_game_message = ""
         if moves_played == self.bot.moves_to_play:
             end_game_message = get_end_game_message(game_state["total_points"])
+        else:
+            end_game_message = MESSAGES["next_move"]
 
         # Reply to the tweet depending on the game state
         if moves_played == 0:
