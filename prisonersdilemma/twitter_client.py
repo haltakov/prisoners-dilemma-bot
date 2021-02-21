@@ -56,22 +56,37 @@ Current score:
     result_win="Congratulations! You won! 🥳",
     result_lose="Ha, you lost! 🤖",
     result_draw="Oh, I guess nobody wins this time... 🤷‍♂️",
+    game_good="This is some amazing score!",
+    game_moderate="Solid score, but could be better next time...",
+    game_poor="That's some really low score, though. Try better next time!",
     next_move="What is your next move?",
 )
 
 
-def get_end_game_message(points):
+def get_end_game_message(points, moves_to_play, cc_payoff, dd_payoff):
     """Get the end game message
 
     :param points: final points
+    :param moves_to_play: number of moves to play
+    :param cc_payoff: payoff if both players cooperate
+    :param dd_payoff: payoff if both players defect
     :return: text of the end game message
     """
     if points[0] < points[1]:
-        return MESSAGES["result_win"]
+        result_message = MESSAGES["result_win"]
     elif points[0] > points[1]:
-        return MESSAGES["result_lose"]
+        result_message = MESSAGES["result_lose"]
     else:
-        return MESSAGES["result_draw"]
+        result_message = MESSAGES["result_draw"]
+
+    if points[1] >= 0.95 * moves_to_play * cc_payoff:
+        score_message = MESSAGES["game_good"]
+    elif points[1] >= 1.5 * moves_to_play ** dd_payoff:
+        score_message = MESSAGES["game_moderate"]
+    else:
+        score_message = MESSAGES["game_poor"]
+
+    return result_message + " " + score_message
 
 
 def move_to_string(move):
@@ -214,7 +229,13 @@ class PrisonersDilemmaTwitterClient:
 
         # Check if the game is finished and prepare the message
         if moves_played == self.bot.moves_to_play:
-            end_game_message = get_end_game_message(game_state["total_points"])
+            end_game_message = get_end_game_message(
+                game_state["total_points"],
+                game_state["moves_count"],
+                self.bot.moves_to_play,
+                self.bot.game_matrix[1],
+                self.bot.game_matrix[2],
+            )
         else:
             end_game_message = MESSAGES["next_move"]
 
