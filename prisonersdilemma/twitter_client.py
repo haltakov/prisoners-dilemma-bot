@@ -94,6 +94,14 @@ def move_to_string(move):
     return "✅" if move else "❌"
 
 
+def check_new_game_tweet(tweet):
+    """Check if the tweet should start a new game
+
+    :param text: tweet text
+    """
+    return not tweet.in_reply_to_status_id and "PLAY" in tweet.text.upper()
+
+
 def parse_move(text):
     """Parse a Prisoner's Dilemma game move from text
 
@@ -221,9 +229,10 @@ class PrisonersDilemmaTwitterClient:
         user = tweet.user.screen_name
         # Check if the user starts a new game
         if not self.bot.is_user_playing(user):
-            logging.info("Starting a new game with %s", user)
-            self.bot.play(user, True)
-            self.reply_to_tweet(MESSAGES["rules"], tweet.id)
+            if check_new_game_tweet(tweet):
+                logging.info("Starting a new game with %s", user)
+                self.bot.play(user, True)
+                self.reply_to_tweet(MESSAGES["rules"], tweet.id)
             return
 
         # Parse the move
