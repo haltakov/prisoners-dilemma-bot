@@ -81,7 +81,7 @@ def get_end_game_message(points, moves_to_play, cc_payoff, dd_payoff):
 
     if points[1] >= 0.95 * moves_to_play * cc_payoff:
         score_message = MESSAGES["game_good"]
-    elif points[1] >= 1.5 * moves_to_play ** dd_payoff:
+    elif points[1] >= 2 * moves_to_play ** dd_payoff:
         score_message = MESSAGES["game_moderate"]
     else:
         score_message = MESSAGES["game_poor"]
