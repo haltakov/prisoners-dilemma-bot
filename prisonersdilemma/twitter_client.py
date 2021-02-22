@@ -1,6 +1,7 @@
 """Module that implements a Twitter client for the Prisoner's Dilemma bot"""
 
 import os
+import re
 import json
 import time
 import logging
@@ -109,7 +110,7 @@ def parse_move(text):
     :raises ValueError: raises an exception if no valid move can be found
     :return: True for COOPERATE and False for DEFECT
     """
-    text = text.replace("@DilemmaBot", "").upper().strip()
+    text = re.sub("@[a-zA-Z0-9_]{1,15}", "", text).upper().strip()
 
     # Check for cooperate
     if "COOPERATE" in text:
