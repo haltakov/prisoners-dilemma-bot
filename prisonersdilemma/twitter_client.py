@@ -208,6 +208,7 @@ class PrisonersDilemmaTwitterClient:
             game["user"] = user
             with open(self.archive_file, "a") as archive:
                 json.dump(game, archive)
+                archive.write("\n")
 
     def reply_to_tweet(self, text, tweet_id):
         """Reply to a tweet
