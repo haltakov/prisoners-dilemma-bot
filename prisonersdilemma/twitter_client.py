@@ -241,7 +241,7 @@ class PrisonersDilemmaTwitterClient:
         try:
             move = parse_move(tweet.text)
         except ValueError:
-            logging.info("Cannot parser the reply from %s", user)
+            logging.info("Cannot parse the reply from %s", user)
             self.reply_to_tweet(MESSAGES["invalid_move"], tweet.id)
             return
 
