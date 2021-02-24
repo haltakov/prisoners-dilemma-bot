@@ -216,12 +216,9 @@ class PrisonersDilemmaTwitterClient:
         :param text: text of the reply
         :param id: ID of the tweet to reply to
         """
-        try:
-            self.twitter_api.update_status(
-                text, in_reply_to_status_id=tweet_id, auto_populate_reply_metadata=True
-            )
-        except tweepy.error.TweepError:
-            pass
+        self.twitter_api.update_status(
+            text, in_reply_to_status_id=tweet_id, auto_populate_reply_metadata=True
+        )
 
     def process_tweet(self, tweet):
         """Process a single tweet
@@ -288,23 +285,37 @@ class PrisonersDilemmaTwitterClient:
         logging.info("Searching for new tweets")
 
         while True:
-            tweets = self.twitter_api.search(
-                "@DilemmaBot", since_id=self.state["last_status_id"]
-            )
-
-            if len(tweets) > 0:
-                logging.info("Found %d new tweets", len(tweets))
-
-            for tweet in tweets:
-                self.process_tweet(tweet)
-                self.state["last_status_id"] = max(
-                    tweet.id, self.state["last_status_id"]
+            try:
+                tweets = self.twitter_api.search(
+                    "@DilemmaBot", since_id=self.state["last_status_id"]
                 )
 
-            self.save_state()
-            self.save_active_games()
+                if len(tweets) > 0:
+                    logging.info("Found %d new tweets", len(tweets))
 
-            time.sleep(self.interval)
+                for tweet in tweets:
+                    try:
+                        self.process_tweet(tweet)
+                        self.state["last_status_id"] = max(
+                            tweet.id, self.state["last_status_id"]
+                        )
+                    except tweepy.error.RateLimitError as err:
+                        logging.error(
+                            "Rate limit error updating the status: %s", str(err)
+                        )
+                        break
+                    except tweepy.error.TweepError as err:
+                        logging.error("Problem updating the status: %s", str(err))
+                        break
+
+                self.save_state()
+                self.save_active_games()
+
+                time.sleep(self.interval)
+            except tweepy.error.RateLimitError as err:
+                logging.error("Rate limit error calling the search API: %s", str(err))
+            except tweepy.error.TweepError as err:
+                logging.error("Problem calling the search API: %s", str(err))
 
 
 def parse_args():
